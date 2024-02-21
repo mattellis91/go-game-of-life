@@ -3,6 +3,7 @@ package main
 import (
 	"image"
 	"log"
+	_ "math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -13,6 +14,7 @@ const (
 	cellsHeight = 80	
 	simStart = ebiten.KeySpace
 	simStop = ebiten.KeyEscape
+	simReset = ebiten.KeyX
 )
 
 type Game struct{
@@ -80,7 +82,23 @@ func (g *Game) Update() error {
 		
 		}
 	}
+	if ebiten.IsKeyPressed(simReset) {
+		g.simRunning = false
+		g.cellsGrid = [cellsHeight][cellsWidth]Cell{}
+		g.init()
+	}
 	return nil
+}
+
+func (g *Game) init() {
+	// for i := range g.cellsGrid {
+	// 	for j := range g.cellsGrid[i] {
+	// 		randomLife := rand.Intn(5) == 0
+	// 		g.cellsGrid[i][j] = Cell{alive: randomLife, placed: true}
+	// 		g.updatePixel(i, j, &g.cellsGrid[i][j])
+	// 	}
+	// }
+
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
@@ -94,10 +112,11 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 func main() {
 	ebiten.SetWindowSize(cellsWidth * cellsScale, cellsHeight * cellsScale)
 	ebiten.SetWindowTitle("Hello, World!")
-	if err := ebiten.RunGame(&Game{
+	g := &Game{
 		worldDisplay: image.NewRGBA(image.Rect(0, 0, cellsWidth, cellsHeight)),
-		cellsGrid: [cellsHeight][cellsWidth]Cell{},
-	}); err != nil {
+	}
+	g.init()
+	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
 	}
 }
